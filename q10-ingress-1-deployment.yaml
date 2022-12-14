@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: example-ingress
+  labels:
+    app: example-ingress
+    name: example-ingress
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: example-ingress
+      name: example-ingress
+  template:
+    metadata:
+      labels:
+        app: example-ingress
+        name: example-ingress
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - resources:
+          limits:
+            memory: "128Mi"
+            cpu: '0.5'
+        # Set the container image name
+        image: 'quay.io/redhattraining/php-ssl:v1.0'
+        name: example-ingress
+        ports:
+          # Define the container port
+        - containerPort: 8080
+          name: example-ingress
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: example-ingress
+    name: example-ingress
+  name: example-ingress
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    name: example-ingress
+    
